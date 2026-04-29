@@ -1,41 +1,42 @@
-let formData = {
-    email: "",
-    message: ""
-};
+import iziToast from "izitoast";
+import "izitoast/dist/css/iziToast.min.css";
 
-const form = document.querySelector(".feedback-form");
-const STORAGE_KEY = "feedback-form-state";
+const form = document.querySelector(".form");
 
-const savedData = localStorage.getItem(STORAGE_KEY);
-
-if (savedData) {
-    formData = JSON.parse(savedData);
-    form.elements.email.value = formData.email;
-    form.elements.message.value = formData.message;
-};
-
-form.addEventListener("input", onTextareaInput);
-
-function onTextareaInput(event) {
-    const { name, value } = event.target;
-    formData[name] = value.trim();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-};
-
-form.addEventListener("submit", submitClick);
-
-function submitClick(event) {
+form.addEventListener("submit", (event) => {
     event.preventDefault();
-    if (formData.email === "" || formData.message === "") {
-        alert(`Fill please all fields`);
-        return
-    }
 
+    const delay = Number(form.elements.delay.value);
+    const state = form.elements.state.value;
 
-    console.log(formData);
-
-    localStorage.removeItem(STORAGE_KEY);
-    formData = { email: "", message: "" };
+    createPromise(delay, state)
+        .then((delay) => {
+            iziToast.success({
+                message: `Fulfilled promise in ${delay}ms`,
+                messageColor: `#fff`,
+                position: `topRight`,
+                backgroundColor: `#59a10d`,
+            });
+        })
+        .catch((delay) => {
+            iziToast.error({
+                message: `Rejected promise in ${delay}ms`,
+                messageColor: `#fff`,
+                position: `topRight`,
+                backgroundColor: `#ef4040`,
+            });
+        });
     form.reset();
-    
+});
+
+function createPromise(delay, state) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (state === `fulfilled`) {
+                resolve(delay);
+            } else {
+                reject(delay);
+            }
+        }, delay)
+    });
 }
